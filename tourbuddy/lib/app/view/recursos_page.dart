@@ -1,27 +1,73 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
+import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/view/recursos_detalle.dart';
 
-class CardView extends StatelessWidget {
-  const CardView({
-    Key? key,
-  }) : super(key: key);
+class CardView extends StatefulWidget {
+  const CardView({Key? key}) : super(key: key);
 
   @override
+  State<CardView> createState() => _CardViewState();
+}
+
+class _CardViewState extends State<CardView> {
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        RecursoCard(
-          title: 'Playa Los Palos',
-          description: 'Tacna - Tacna - Tacna',
-          distance: 'a 15 km',
-          comments: '5 comentarios',
-          imageUrl:
-              'https://blog.vivaaerobus.com/wp-content/uploads/2019/12/Mejores-Playas-de-Canc%C3%BAn.jpg', // Reemplaza esto con la URL de tu imagen
-        ),
-      ],
+    return StreamBuilder<QuerySnapshot>(
+      stream: placesStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SingleChildScrollView(
+            child: SkeletonLoader(
+              items: 3,
+              baseColor: Theme.of(context).colorScheme.background,
+              highlightColor: Theme.of(context).colorScheme.surfaceVariant,
+              builder: Card(
+                child: Column(
+                  children: [
+                    Container(
+                      height: 300,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        return ListView.separated(
+          itemCount: snapshot.data!.docs.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 10.0),
+          itemBuilder: (context, index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+
+            Map<String, dynamic> data =
+                document.data()! as Map<String, dynamic>;
+
+            Place place = Place.fromJson(id: document.id, json: data);
+
+            return RecursoCard(
+              title: place.name ?? '',
+              description:
+                  '${place.department} - ${place.province} - ${place.district}',
+              distance: 'a 15 km',
+              comments: '5 comentarios',
+              imageUrl: place.gallery?.first ?? '',
+            );
+          },
+        );
+      },
     );
   }
+
+  final Stream<QuerySnapshot> placesStream =
+      FirebaseFirestore.instance.collection('places').snapshots();
 }
 
 class RecursoCard extends StatelessWidget {
@@ -51,39 +97,50 @@ class RecursoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Image.network(
-            imageUrl,
-            height: 200.0,
-            fit: BoxFit.cover,
-          ),
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: InkWell(
-              onTap: () => _handleRecursoCardTap(context),
+      margin: const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () => _handleRecursoCardTap(context),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
+              ),
+              child: Image.network(
+                imageUrl,
+                height: 200.0,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
                     title,
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
                   Row(
                     children: [
-                      Icon(Icons.location_on, color: Colors.grey),
-                      Text(
-                        description,
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 50.0),
+                      const Icon(Icons.location_on, color: Colors.grey),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * .65,
                         child: Text(
-                          distance,
-                          style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                          description,
+                          style: const TextStyle(fontSize: 14.0),
+                          overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        distance,
+                        style:
+                            const TextStyle(fontSize: 14.0, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -110,8 +167,8 @@ class RecursoCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

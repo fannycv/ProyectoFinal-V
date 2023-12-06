@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "193227320452",
+    "project_id": "recomendaciones-app",
+    "storage_bucket": "recomendaciones-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193227320452:android:241fba5679b435680066d1",
+        "android_client_info": {
+          "package_name": "com.example.tourbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE-hEGnFqbayJBgWtb0piy0whTVpLsLpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

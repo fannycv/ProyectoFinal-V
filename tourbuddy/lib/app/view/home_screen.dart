@@ -41,7 +41,7 @@ class CarouselPage extends StatelessWidget {
           const SizedBox(height: 60),
           Center(
             child: Image.asset(
-              'assets/images/estilo.png',
+              'assets/images/travel.png',
               width: 180,
               height: 168,
             ),
@@ -70,13 +70,14 @@ class CarouselPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
+                      //para ir a la pantalla principal
                       MaterialPageRoute(
                         builder: (context) => const HomePage(),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: const Color(0xFF40B7AD),
+                    backgroundColor: Colors.indigo,
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   child: const Text(

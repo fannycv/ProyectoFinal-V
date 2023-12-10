@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:tourbuddy/app/view/recomendaciones_page.dart';
-import 'package:tourbuddy/app/view/recursos_page.dart';
-import 'package:tourbuddy/app/view/rutas_page.dart';
+import 'package:tourbuddy/app/view/experiencia/experiencia_page.dart';
+import 'package:tourbuddy/app/view/perfil/perfil.dart';
+import 'package:tourbuddy/app/view/recomendaciones/recomendaciones_page.dart';
+import 'package:tourbuddy/app/view/recurso/form_recurso.dart';
+import 'package:tourbuddy/app/view/recurso/recursos_page.dart';
+import 'package:tourbuddy/app/view/ruta/form_ruta.dart';
+import 'package:tourbuddy/app/view/ruta/rutas_page.dart';
 
 List<String> titles = <String>[
   'RECURSOS',
@@ -32,12 +36,22 @@ class _PetsPageState extends State<HomePage> {
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: Colors.indigo,
-          actions: const <Widget>[
-            Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1089&q=80'),
+          iconTheme: const IconThemeData(color: Colors.white),
+
+          actions: <Widget>[
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PerfilView()),
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      'https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1089&q=80'),
+                ),
               ),
             ),
           ],
@@ -69,19 +83,19 @@ class _PetsPageState extends State<HomePage> {
               case 0:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CardView()),
+                  MaterialPageRoute(builder: (context) => RecursoFormView()),
                 );
                 break;
               case 1:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RecomedacionesView()),
+                  MaterialPageRoute(builder: (context) => ExperienciaView()),
                 );
                 break;
               case 2:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RutasView()),
+                  MaterialPageRoute(builder: (context) => RutaFormView()),
                 );
                 break;
               default:
@@ -92,7 +106,7 @@ class _PetsPageState extends State<HomePage> {
         body: const TabBarView(
           children: [
             CardView(),
-            RecomedacionesView(),
+            ExperienciaView(),
             RutasView(),
           ],
         ),
@@ -103,6 +117,10 @@ class _PetsPageState extends State<HomePage> {
               const DrawerHeader(
                 decoration: BoxDecoration(
                   color: Colors.indigo,
+
+                  /* image: DecorationImage(
+                        image: AssetImage('assets/images/estilo.png'),
+                        fit: BoxFit.cover)*/
                 ),
                 child: Text(
                   'TourBuddy',
@@ -120,17 +138,17 @@ class _PetsPageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.message),
+                leading: const Icon(Icons.card_travel),
                 title: const Text('Recursos'),
                 onTap: () {
                   setState(() {
                     initialIndex = 0;
                   });
-                  // Navigator.pop(context);
+                  Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.account_circle),
+                leading: const Icon(Icons.travel_explore),
                 title: const Text('Recomendaciones'),
                 onTap: () {
                   setState(() {
@@ -140,7 +158,7 @@ class _PetsPageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.settings),
+                leading: const Icon(Icons.route),
                 title: const Text('Rutas'),
                 onTap: () {
                   setState(() {
@@ -150,21 +168,21 @@ class _PetsPageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.settings),
+                leading: const Icon(Icons.mode_of_travel),
                 title: const Text('Experiencias'),
                 onTap: () {
                   setState(() {
-                    initialIndex = 2;
+                    initialIndex = 3;
                   });
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.settings),
+                leading: const Icon(Icons.account_circle),
                 title: const Text('Perfil'),
                 onTap: () {
                   setState(() {
-                    initialIndex = 2;
+                    initialIndex = 4;
                   });
                   Navigator.pop(context);
                 },

@@ -6,7 +6,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF40B7AD);
+    const primary = Color.fromRGBO(63, 81, 181, 1);
     const textColor = Color(0xFF4A4A4A);
     const backgroundColor = Color(0xFFF5F5F5);
 

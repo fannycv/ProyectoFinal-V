@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
-import 'package:tourbuddy/app/view/recursos_detalle.dart';
+import 'package:tourbuddy/app/view/recurso/recursos_detalle.dart';
 
 class CardView extends StatefulWidget {
   const CardView({Key? key}) : super(key: key);
@@ -89,8 +89,17 @@ class RecursoCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RecursoDetailPage(title: title),
+        builder: (context) => RecursoDetailPage(place: createPlaceObject()),
       ),
+    );
+  }
+
+  Place createPlaceObject() {
+    return Place(
+      name: title,
+      department: 'Departamento',
+      province: 'Provincia',
+      district: 'Distrito',
     );
   }
 
@@ -116,18 +125,23 @@ class RecursoCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
                     title,
                     style: const TextStyle(
-                        fontSize: 20.0, fontWeight: FontWeight.bold),
+                        fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 4.0),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.grey),
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.amber,
+                        size: 16,
+                      ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * .65,
                         child: Text(
@@ -144,20 +158,28 @@ class RecursoCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: <Widget>[
                       RatingStars(
                         value: 3,
                         starCount: 5,
-                        starSize: 20,
+                        starSize: 16,
                         valueLabelVisibility: false,
-                        starColor: Colors.yellow,
-                        starSpacing: 2,
+                        starColor: Colors.amber,
+                        starSpacing: 7,
                         maxValueVisibility: false,
                         animationDuration: Duration(milliseconds: 1000),
                       ),
-                      SizedBox(width: 5.0),
-                      Icon(Icons.comment, color: Colors.grey),
+                      const Spacer(),
+                      Icon(
+                        Icons.comment,
+                        color: Colors.grey,
+                        size: 16,
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 5),
+                      ),
                       Text(
                         comments,
                         style: TextStyle(fontSize: 14.0, color: Colors.grey),

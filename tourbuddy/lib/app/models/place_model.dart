@@ -15,6 +15,8 @@ class Place {
   String? district;
   int? code;
   String? category;
+  String? id;
+
   GeoPoint? location;
 
   Place({
@@ -33,6 +35,7 @@ class Place {
     this.district,
     this.code,
     this.category,
+    this.id,
   });
 
   factory Place.fromJson(
@@ -40,6 +43,7 @@ class Place {
     GeoPoint locationTemp = json['location'] as GeoPoint;
 
     return Place(
+      id: id,
       typeCategory: json['type_category'],
       activities: json['activities'] != null
           ? (json['activities'] as List<dynamic>).cast<int>()

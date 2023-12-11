@@ -1,8 +1,14 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
+import 'package:skeleton_loader/skeleton_loader.dart';
+import 'package:tourbuddy/app/models/comment_model.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
@@ -23,8 +29,6 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
 
   LatLng placeLatLng = const LatLng(0, 0);
 
-  // late final Location location = Location();
-
   bool loading = true;
 
   void loadResourceLocation() async {
@@ -43,10 +47,12 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
     });
   }
 
+  String? currentImage;
   @override
   void initState() {
     super.initState();
 
+    currentImage = widget.place.gallery?.first;
     loadResourceLocation();
   }
 
@@ -68,7 +74,10 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Image.network(
-                    'https://elcomercio.pe/resizer/PF8csebjB4fMHSZZaHNVan_6_ZE=/980x0/smart/filters:format(jpeg):quality(75)/arc-anglerfish-arc2-prod-elcomercio.s3.amazonaws.com/public/6WIO3UTLZNGLXAOHHLNSG74PHQ.jpg',
+                    currentImage ?? '',
+                    height: 200.0,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -77,6 +86,7 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                         SizedBox(
                           height: 80,
                           child: GridView.builder(
+                            itemCount: widget.place.gallery?.length ?? 0,
                             scrollDirection: Axis.horizontal,
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
@@ -84,14 +94,23 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                               crossAxisSpacing: 4.0,
                             ),
                             itemBuilder: (context, index) {
-                              return Container(
-                                margin: const EdgeInsets.all(2),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  child: Image.network(
-                                    'https://cdn.vuetifyjs.com/images/cards/sunshine.jpg',
-                                    fit: BoxFit.cover,
-                                    width: 100.0,
+                              String url = widget.place.gallery![index];
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    currentImage = url;
+                                  });
+                                },
+                                borderRadius: BorderRadius.circular(5.0),
+                                child: Container(
+                                  margin: const EdgeInsets.all(2),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                    child: Image.network(
+                                      url,
+                                      fit: BoxFit.cover,
+                                      width: 100.0,
+                                    ),
                                   ),
                                 ),
                               );
@@ -209,56 +228,6 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      Card(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(15),
-                          child: Column(
-                            children: [
-                              const Text(
-                                '¿Qué opinas?',
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              TextFormField(
-                                maxLength: 200,
-                                decoration: const InputDecoration(
-                                  labelText: 'Escribe un comentario',
-                                  border: OutlineInputBorder(),
-                                ),
-                                onChanged: (value) {
-                                  print(
-                                      'Number of characters: ${value.length}');
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.red.shade100,
-                                  ),
-                                  child: const Text(
-                                    'ENVIAR',
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 35),
                       const Text(
                         'Actividades',
                         style: TextStyle(
@@ -285,71 +254,9 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                         ],
                       ),
                       const SizedBox(height: 35),
-                      const Text(
-                        'Comentarios',
-                        style: TextStyle(
-                          fontSize: 30,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Card(
-                        color: Colors.white,
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              const ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      'https://i.pinimg.com/474x/3e/2e/47/3e2e4748da61c30e6c43a7877874ef1c.jpg'),
-                                ),
-                                title: Text('Katy Tucker'),
-                                subtitle: RatingStars(
-                                  value: 5,
-                                  starCount: 5,
-                                  starSize: 14,
-                                  valueLabelVisibility: false,
-                                  starColor: Colors.amber,
-                                  starSpacing: 7,
-                                  maxValueVisibility: false,
-                                  animationDuration: Duration(
-                                    milliseconds: 1000,
-                                  ),
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                    'Love this spot! I was there with my fiance and a dog once and it\'s the best place to spend time not that far from the city.'),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  IconButton(
-                                    icon: const Icon(Icons.favorite),
-                                    color: Colors.red,
-                                    onPressed: () {
-                                      // Lógica para manejar la acción de "Me encanta"
-                                    },
-                                  ),
-                                  const Text(
-                                    '5 ',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                  const Spacer(),
-                                  const Text('Hace 6 días'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
                     ]),
                   ),
+                  comment(),
                 ],
               ),
             ),
@@ -409,6 +316,222 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
           },
         ),
       ),
+    );
+  }
+
+// add comments collection into place collection
+
+  Future<void> addComment(String comment) async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) return;
+
+    await FirebaseFirestore.instance
+        .collection('places')
+        .doc(widget.place.id ?? '')
+        .collection('comments')
+        .add({
+      'comment': comment,
+      'created_at': DateTime.now(),
+      'user': {
+        'uid': currentUser.uid,
+        'name': currentUser.displayName,
+        'email': currentUser.email,
+        'photo_url': currentUser.photoURL,
+      }
+    });
+  }
+
+  TextEditingController commentController = TextEditingController();
+
+  Widget comment() {
+    final Stream<QuerySnapshot> commentsStream = FirebaseFirestore.instance
+        .collection('places')
+        .doc(widget.place.id)
+        .collection('comments')
+        .orderBy('created_at', descending: true)
+        .snapshots();
+
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Card(
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  '¿Qué opinas?',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: commentController,
+                  maxLength: 200,
+                  decoration: const InputDecoration(
+                    labelText: 'Escribe un comentario',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (commentController.text.isEmpty) return;
+
+                      addComment(commentController.text);
+
+                      commentController.clear();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red.shade100,
+                    ),
+                    child: const Text(
+                      'ENVIAR',
+                      style: TextStyle(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 35),
+        const Text(
+          'Comentarios',
+          style: TextStyle(
+            fontSize: 30,
+          ),
+        ),
+        const SizedBox(height: 20),
+        StreamBuilder<QuerySnapshot>(
+          stream: commentsStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return const Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SingleChildScrollView(
+                child: SkeletonLoader(
+                  items: 3,
+                  baseColor: Theme.of(context).colorScheme.background,
+                  highlightColor: Theme.of(context).colorScheme.surfaceVariant,
+                  builder: Card(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 300,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return ListView.separated(
+              itemCount: snapshot.data!.docs.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: 10.0),
+              itemBuilder: (context, index) {
+                DocumentSnapshot document = snapshot.data!.docs[index];
+
+                Map<String, dynamic> data =
+                    document.data()! as Map<String, dynamic>;
+
+                Comment comment = Comment.fromJson(id: document.id, json: data);
+
+                return Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  margin: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        ListTile(
+                          leading: comment.user?.photoUrl?.isNotEmpty ?? false
+                              ? CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    comment.user?.photoUrl ?? '',
+                                  ),
+                                )
+                              : const CircleAvatar(
+                                  child: Icon(Icons.person_2_outlined),
+                                ),
+                          title:
+                              Text(comment.user?.name ?? 'Usuario desconocido'),
+                          subtitle: const RatingStars(
+                            value: 5,
+                            starCount: 5,
+                            starSize: 14,
+                            valueLabelVisibility: false,
+                            starColor: Colors.amber,
+                            starSpacing: 7,
+                            maxValueVisibility: false,
+                            animationDuration: Duration(
+                              milliseconds: 1000,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(comment.comment ?? ''),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            IconButton(
+                              icon: const Icon(Icons.favorite),
+                              color: Colors.red,
+                              onPressed: () {
+                                // Lógica para manejar la acción de "Me encanta"
+                              },
+                            ),
+                            const Text(
+                              '5 ',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            const Spacer(),
+                            Text(
+                              timeago.format(
+                                comment.createdAt?.toDate() ?? DateTime.now(),
+                                locale: 'es',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        const SizedBox(height: 20)
+      ],
     );
   }
 }

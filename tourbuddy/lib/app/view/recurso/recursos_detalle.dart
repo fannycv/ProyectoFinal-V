@@ -1,21 +1,63 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
-//import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 
-class RecursoDetailPage extends StatelessWidget {
+class RecursoDetailPage extends StatefulWidget {
   final Place place;
 
-  RecursoDetailPage({required this.place});
+  const RecursoDetailPage({super.key, required this.place});
+
+  @override
+  State<RecursoDetailPage> createState() => _RecursoDetailPageState();
+}
+
+class _RecursoDetailPageState extends State<RecursoDetailPage> {
+  CameraPosition? _kGooglePlex;
+  final Completer<GoogleMapController> mapController =
+      Completer<GoogleMapController>();
+
+  LatLng placeLatLng = const LatLng(0, 0);
+
+  // late final Location location = Location();
+
+  bool loading = true;
+
+  void loadResourceLocation() async {
+    setState(() {
+      _kGooglePlex = CameraPosition(
+        target: LatLng(widget.place.location?.latitude ?? 0,
+            widget.place.location?.longitude ?? 0),
+        zoom: 12.5,
+      );
+
+      placeLatLng = LatLng(
+        widget.place.location?.latitude ?? 0,
+        widget.place.location?.longitude ?? 0,
+      );
+      loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadResourceLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(place.name!),
+        title: Text(widget.place.name!),
         backgroundColor: Colors.indigo,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
       ),
       body: Padding(
         padding: const EdgeInsets.all(0.0),
@@ -32,18 +74,18 @@ class RecursoDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        Container(
+                        SizedBox(
                           height: 80,
                           child: GridView.builder(
                             scrollDirection: Axis.horizontal,
                             gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 1,
                               crossAxisSpacing: 4.0,
                             ),
                             itemBuilder: (context, index) {
                               return Container(
-                                margin: EdgeInsets.all(2),
+                                margin: const EdgeInsets.all(2),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(5.0),
                                   child: Image.network(
@@ -57,7 +99,7 @@ class RecursoDetailPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Row(
+                        const Row(
                           children: <Widget>[
                             RatingStars(
                               value: 3,
@@ -69,7 +111,7 @@ class RecursoDetailPage extends StatelessWidget {
                               maxValueVisibility: false,
                               animationDuration: Duration(milliseconds: 1000),
                             ),
-                            const Spacer(),
+                            Spacer(),
                             Text(
                               '10 comentarios',
                               style:
@@ -84,8 +126,8 @@ class RecursoDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.all(18.0),
                     child: Column(children: <Widget>[
                       Text(
-                        place.name ?? '',
-                        style: TextStyle(
+                        widget.place.name ?? '',
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -94,10 +136,10 @@ class RecursoDetailPage extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'Son playas abiertas de bajo oleaje, en cuyas orillas se tiene la presencia de arena fina...',
+                          widget.place.description ?? '',
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
                         child: Container(
@@ -105,6 +147,7 @@ class RecursoDetailPage extends StatelessWidget {
                           color: Colors.purple.shade300,
                           child: Stack(
                             children: [
+                              if (!loading) mapWidget(),
                               Positioned(
                                 bottom: 0,
                                 left: 0,
@@ -119,14 +162,14 @@ class RecursoDetailPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Row(children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.location_on,
                                             color: Colors.amber,
                                             size: 16,
                                           ),
                                           Text(
-                                            '${place.description} - ${place.province} ',
-                                            style: TextStyle(
+                                            '${widget.place.department}-${widget.place.province}-${widget.place.district}',
+                                            style: const TextStyle(
                                               fontSize: 14.0,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -146,12 +189,12 @@ class RecursoDetailPage extends StatelessWidget {
                         color: Colors.red[100],
                         elevation: 0.0,
                         margin: const EdgeInsets.all(0.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Center(
+                              Center(
                                 child: Text(
                                   'Califica este lugar',
                                   style: TextStyle(
@@ -159,7 +202,7 @@ class RecursoDetailPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10),
                               RatingBar(),
                             ],
                           ),
@@ -186,7 +229,7 @@ class RecursoDetailPage extends StatelessWidget {
                               const SizedBox(height: 20),
                               TextFormField(
                                 maxLength: 200,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Escribe un comentario',
                                   border: OutlineInputBorder(),
                                 ),
@@ -225,8 +268,8 @@ class RecursoDetailPage extends StatelessWidget {
                       const SizedBox(height: 20),
                       ListView(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: const [
                           ActivityItem(
                             title: 'Actividad 1',
                             name: 'Nombre 1',
@@ -256,11 +299,11 @@ class RecursoDetailPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              ListTile(
+                              const ListTile(
                                 leading: CircleAvatar(
                                   backgroundImage: NetworkImage(
                                       'https://i.pinimg.com/474x/3e/2e/47/3e2e4748da61c30e6c43a7877874ef1c.jpg'),
@@ -279,7 +322,7 @@ class RecursoDetailPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: Text(
                                     'Love this spot! I was there with my fiance and a dog once and it\'s the best place to spend time not that far from the city.'),
@@ -287,18 +330,18 @@ class RecursoDetailPage extends StatelessWidget {
                               Row(
                                 children: <Widget>[
                                   IconButton(
-                                    icon: Icon(Icons.favorite),
+                                    icon: const Icon(Icons.favorite),
                                     color: Colors.red,
                                     onPressed: () {
                                       // Lógica para manejar la acción de "Me encanta"
                                     },
                                   ),
-                                  Text(
+                                  const Text(
                                     '5 ',
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                   const Spacer(),
-                                  Text('Hace 6 días'),
+                                  const Text('Hace 6 días'),
                                 ],
                               ),
                             ],
@@ -315,6 +358,59 @@ class RecursoDetailPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget mapWidget() {
+    return SizedBox(
+      height: 200,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: GoogleMap(
+          indoorViewEnabled: true,
+          initialCameraPosition: _kGooglePlex!,
+          liteModeEnabled: false,
+          myLocationButtonEnabled: false,
+          myLocationEnabled: false,
+          zoomControlsEnabled: false,
+          zoomGesturesEnabled: true,
+          scrollGesturesEnabled: true,
+          compassEnabled: true,
+          rotateGesturesEnabled: true,
+          mapToolbarEnabled: true,
+          tiltGesturesEnabled: true,
+          gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+            Factory<OneSequenceGestureRecognizer>(
+              () => EagerGestureRecognizer(),
+            ),
+          },
+          // onTap: (argument) {
+          //   setState(() {
+          //     latLng =
+          //         LatLng(argument.latitude, argument.longitude);
+          //   });
+          // },
+          onMapCreated: (controller) {
+            controller = controller;
+          },
+          markers: {
+            Marker(
+              draggable: false,
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen,
+              ),
+              markerId: const MarkerId('Localización'),
+              position: placeLatLng,
+              flat: true,
+              onDragStart: null,
+              infoWindow: InfoWindow(
+                title: widget.place.name,
+                snippet: widget.place.district,
+              ),
+            ),
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class ActivityItem extends StatelessWidget {
@@ -322,6 +418,7 @@ class ActivityItem extends StatelessWidget {
   final String name;
 
   const ActivityItem({
+    super.key,
     required this.title,
     required this.name,
   });
@@ -345,6 +442,8 @@ class ActivityItem extends StatelessWidget {
 }
 
 class RatingBar extends StatefulWidget {
+  const RatingBar({super.key});
+
   @override
   _RatingBarState createState() => _RatingBarState();
 }

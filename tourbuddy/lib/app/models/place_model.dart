@@ -1,22 +1,9 @@
-class Location {
-  double latitude;
-  double longitude;
-
-  Location(this.latitude, this.longitude);
-
-  factory Location.fromJson(Map<String, dynamic> json) {
-    return Location(
-      json['latitude'] as double,
-      json['longitude'] as double,
-    );
-  }
-}
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Place {
   String? typeCategory;
   List<int>? activities;
   String? file;
-  Location? location;
   String? name;
   String? state;
   String? description;
@@ -28,6 +15,7 @@ class Place {
   String? district;
   int? code;
   String? category;
+  GeoPoint? location;
 
   Place({
     this.typeCategory,
@@ -49,14 +37,15 @@ class Place {
 
   factory Place.fromJson(
       {required String id, required Map<String, dynamic> json}) {
+    GeoPoint locationTemp = json['location'] as GeoPoint;
+
     return Place(
       typeCategory: json['type_category'],
       activities: json['activities'] != null
           ? (json['activities'] as List<dynamic>).cast<int>()
           : [],
       file: json['file'],
-      // location:
-      //     json['location'] != null ? Location.fromJson(json['location']) : null,
+      location: locationTemp,
       name: json['name'],
       state: json['state'],
       description: json['description'],

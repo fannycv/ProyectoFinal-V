@@ -53,12 +53,7 @@ class _CardViewState extends State<CardView> {
             Place place = Place.fromJson(id: document.id, json: data);
 
             return RecursoCard(
-              title: place.name ?? '',
-              description:
-                  '${place.department} - ${place.province} - ${place.district}',
-              distance: 'a 15 km',
-              comments: '5 comentarios',
-              imageUrl: place.gallery?.first ?? '',
+              place: place,
             );
           },
         );
@@ -71,35 +66,19 @@ class _CardViewState extends State<CardView> {
 }
 
 class RecursoCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String distance;
-  final String comments;
-  final String imageUrl;
+  final Place place;
 
-  RecursoCard({
-    this.title = '',
-    this.description = '',
-    this.distance = '',
-    this.comments = '',
-    this.imageUrl = '',
+  const RecursoCard({
+    super.key,
+    required this.place,
   });
 
   _handleRecursoCardTap(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RecursoDetailPage(place: createPlaceObject()),
+        builder: (context) => RecursoDetailPage(place: place),
       ),
-    );
-  }
-
-  Place createPlaceObject() {
-    return Place(
-      name: title,
-      department: 'Departamento',
-      province: 'Provincia',
-      district: 'Distrito',
     );
   }
 
@@ -119,7 +98,7 @@ class RecursoCard extends StatelessWidget {
                 topRight: Radius.circular(10.0),
               ),
               child: Image.network(
-                imageUrl,
+                place.gallery?.first ?? '',
                 height: 200.0,
                 fit: BoxFit.cover,
               ),
@@ -130,7 +109,7 @@ class RecursoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    title,
+                    place.name ?? '',
                     style: const TextStyle(
                         fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
@@ -145,21 +124,20 @@ class RecursoCard extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * .65,
                         child: Text(
-                          description,
+                          '${place.department}-${place.province}-${place.district}',
                           style: const TextStyle(fontSize: 14.0),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const Spacer(),
-                      Text(
-                        distance,
-                        style:
-                            const TextStyle(fontSize: 14.0, color: Colors.grey),
+                      const Text(
+                        '5km',
+                        style: TextStyle(fontSize: 14.0, color: Colors.grey),
                       ),
                     ],
                   ),
                   const SizedBox(height: 10.0),
-                  Row(
+                  const Row(
                     children: <Widget>[
                       RatingStars(
                         value: 3,
@@ -171,17 +149,17 @@ class RecursoCard extends StatelessWidget {
                         maxValueVisibility: false,
                         animationDuration: Duration(milliseconds: 1000),
                       ),
-                      const Spacer(),
+                      Spacer(),
                       Icon(
                         Icons.comment,
                         color: Colors.grey,
                         size: 16,
                       ),
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(left: 5),
                       ),
                       Text(
-                        comments,
+                        'comments',
                         style: TextStyle(fontSize: 14.0, color: Colors.grey),
                       ),
                     ],

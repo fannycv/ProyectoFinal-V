@@ -5,13 +5,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:skeleton_loader/skeleton_loader.dart';
+import 'package:tourbuddy/app/models/activity_model.dart';
 import 'package:tourbuddy/app/models/comment_model.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
+import 'package:tourbuddy/app/providers/activities_provider.dart';
 
 class RecursoDetailPage extends StatefulWidget {
   final Place place;
@@ -228,32 +231,7 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      const Text(
-                        'Actividades',
-                        style: TextStyle(
-                          fontSize: 30,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: const [
-                          ActivityItem(
-                            title: 'Actividad 1',
-                            name: 'Nombre 1',
-                          ),
-                          ActivityItem(
-                            title: 'Actividad 2',
-                            name: 'Nombre 2',
-                          ),
-                          ActivityItem(
-                            title: 'Actividad 3',
-                            name: 'Nombre 3',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 35),
+                      activity(),
                     ]),
                   ),
                   comment(),
@@ -262,6 +240,37 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget activity() {
+    return Consumer<ActivityProvider>(
+      builder: (context, activityProvider, child) => Column(
+        children: [
+          const Text(
+            'Actividades',
+            style: TextStyle(
+              fontSize: 30,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: widget.place.activities?.length ?? 0,
+            itemBuilder: (context, index) {
+              int? code = widget.place.activities?[index];
+              Activity? activity = activityProvider.activities.firstWhere(
+                (element) => element.activityCode == code,
+                orElse: () => Activity(),
+              );
+
+              return ActivityItem(activity: activity);
+            },
+          ),
+          const SizedBox(height: 35),
+        ],
       ),
     );
   }
@@ -537,14 +546,9 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
 }
 
 class ActivityItem extends StatelessWidget {
-  final String title;
-  final String name;
+  final Activity activity;
 
-  const ActivityItem({
-    super.key,
-    required this.title,
-    required this.name,
-  });
+  const ActivityItem({super.key, required this.activity});
 
   @override
   Widget build(BuildContext context) {
@@ -552,14 +556,9 @@ class ActivityItem extends StatelessWidget {
       color: Colors.transparent,
       elevation: 0,
       child: ListTile(
-        title: Text(title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nombre: $name'),
-          ],
-        ),
-      ),
+          title: Text(activity.activityType ?? ''),
+          subtitle: Text(activity.activity ?? ''),
+          leading: Icon(activity.getIcon())),
     );
   }
 }

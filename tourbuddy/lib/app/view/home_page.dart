@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tourbuddy/app/view/experiencia/experiencia_page.dart';
+import 'package:tourbuddy/app/view/favoritos/favoritos_page.dart';
 import 'package:tourbuddy/app/view/perfil/perfil.dart';
-import 'package:tourbuddy/app/view/recomendaciones/recomendaciones_page.dart';
 import 'package:tourbuddy/app/view/recurso/form_recurso.dart';
 import 'package:tourbuddy/app/view/recurso/recursos_page.dart';
 import 'package:tourbuddy/app/view/ruta/form_ruta.dart';
@@ -43,10 +43,10 @@ class _PetsPageState extends State<HomePage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PerfilView()),
+                  MaterialPageRoute(builder: (context) => const PerfilView()),
                 );
               },
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.only(right: 10),
                 child: CircleAvatar(
                   backgroundImage: NetworkImage(
@@ -83,19 +83,21 @@ class _PetsPageState extends State<HomePage> {
               case 0:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RecursoFormView()),
+                  MaterialPageRoute(
+                      builder: (context) => const RecursoFormView()),
                 );
                 break;
               case 1:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ExperienciaView()),
+                  MaterialPageRoute(
+                      builder: (context) => const ExperienciaView()),
                 );
                 break;
               case 2:
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RutaFormView()),
+                  MaterialPageRoute(builder: (context) => const RutaFormView()),
                 );
                 break;
               default:
@@ -105,8 +107,10 @@ class _PetsPageState extends State<HomePage> {
         ),
         body: const TabBarView(
           children: [
-            CardView(),
-            ExperienciaView(),
+            RecursosView(),
+
+            // ExperienciaView(),
+            FavoritosView(),
             RutasView(),
           ],
         ),

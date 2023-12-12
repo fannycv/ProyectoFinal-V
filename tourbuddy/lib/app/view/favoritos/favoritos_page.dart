@@ -5,23 +5,20 @@ import 'package:skeleton_loader/skeleton_loader.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/view/recurso/recurso_card_view.dart';
 
-class RecursosView extends StatefulWidget {
-  const RecursosView({Key? key}) : super(key: key);
+class FavoritosView extends StatefulWidget {
+  const FavoritosView({Key? key}) : super(key: key);
 
   @override
-  State<RecursosView> createState() => _RecursosViewState();
+  State<FavoritosView> createState() => _FavoritosViewState();
 }
 
-class _RecursosViewState extends State<RecursosView>
+class _FavoritosViewState extends State<FavoritosView>
     with AutomaticKeepAliveClientMixin {
-  List<String> favoritePlacesIDs = <String>[];
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     return StreamBuilder<QuerySnapshot>(
-      stream: getPlacesStream(),
+      stream: getFavoritePlacesStream(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return const Text('Something went wrong');
@@ -59,7 +56,7 @@ class _RecursosViewState extends State<RecursosView>
 
             return RecursoCard(
               place: place,
-              isFavorite: favoritePlacesIDs.contains(place.id),
+              isFavorite: true,
             );
           },
         );
@@ -67,10 +64,7 @@ class _RecursosViewState extends State<RecursosView>
     );
   }
 
-  final Stream<QuerySnapshot> placesStream =
-      FirebaseFirestore.instance.collection('places').snapshots();
-
-  Stream<QuerySnapshot> getPlacesStream() {
+  Stream<QuerySnapshot> getFavoritePlacesStream() {
     // Obtener el Stream de los IDs de los lugares favoritos
 
     User? user = FirebaseAuth.instance.currentUser;
@@ -81,16 +75,25 @@ class _RecursosViewState extends State<RecursosView>
         .snapshots();
 
     return favoritesStream.asyncMap((favoritesSnapshot) async {
-      List<String> temp = [];
+      List<String> favoritePlacesIDs = [];
 
       for (var doc in favoritesSnapshot.docs) {
-        temp.add(doc['place_id'] as String);
+        favoritePlacesIDs.add(doc['place_id'] as String);
       }
 
-      favoritePlacesIDs = temp;
+      if (favoritePlacesIDs.isEmpty) {
+        return await FirebaseFirestore.instance
+            .collection('places')
+            .doc('dummy')
+            .collection('dummy')
+            .get();
+      }
+
       // Obtener los detalles de los lugares favoritos basados en los IDs
-      QuerySnapshot placesSnapshot =
-          await FirebaseFirestore.instance.collection('places').get();
+      QuerySnapshot placesSnapshot = await FirebaseFirestore.instance
+          .collection('places')
+          .where(FieldPath.documentId, whereIn: favoritePlacesIDs)
+          .get();
 
       return placesSnapshot;
     });

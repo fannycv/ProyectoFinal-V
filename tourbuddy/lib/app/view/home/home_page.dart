@@ -11,7 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 List<String> titles = <String>[
   'RECURSOS',
   'RECOMENDACIONES',
-  'RUTAS',
+  'MIS FAVORITOS',
 ];
 
 class HomePage extends StatefulWidget {
@@ -112,7 +112,11 @@ class _HomePageState extends State<HomePage> {
           children: [
             RecursosView(),
             RecomendacionesView(),
-            RutasView(),
+
+            FavoritosView(
+              withAppBar: false,
+            )
+            // RutasView(),
           ],
         ),
         drawer: Drawer(
@@ -179,7 +183,9 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Icons.favorite),
                 title: const Text('Favoritos'),
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.pop(context);
+
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const FavoritosView()),
@@ -190,7 +196,8 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Icons.people),
                 title: const Text('Perfil'),
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.pop(context);
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const PerfilView()),
                   );
@@ -201,6 +208,7 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Cerrar Sesion'),
                 onTap: () async {
                   await _signOut();
+                  if (!mounted) return;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => WelcomePage()),

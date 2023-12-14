@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/view/recurso/recurso_card_view.dart';
@@ -15,6 +17,18 @@ class RecursosView extends StatefulWidget {
 class _RecursosViewState extends State<RecursosView>
     with AutomaticKeepAliveClientMixin {
   List<String> favoritePlacesIDs = <String>[];
+
+  Location location = Location();
+
+  late LatLng currentLatLng = const LatLng(0, 0);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    loadLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,11 +74,20 @@ class _RecursosViewState extends State<RecursosView>
             return RecursoCard(
               place: place,
               isFavorite: favoritePlacesIDs.contains(place.id),
+              currentLatLng: currentLatLng,
             );
           },
         );
       },
     );
+  }
+
+  loadLocation() async {
+    location.onLocationChanged.listen((LocationData data) {
+      if (mounted) {
+        currentLatLng = LatLng(data.latitude ?? 0, data.longitude ?? 0);
+      }
+    });
   }
 
   Stream<List<Map<String, dynamic>>> getPlacesWithCommentsStream() {

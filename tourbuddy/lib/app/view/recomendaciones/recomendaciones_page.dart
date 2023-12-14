@@ -22,7 +22,8 @@ class RecomendacionesView extends StatefulWidget {
   State<RecomendacionesView> createState() => _RecomendacionesViewState();
 }
 
-class _RecomendacionesViewState extends State<RecomendacionesView> {
+class _RecomendacionesViewState extends State<RecomendacionesView>
+    with AutomaticKeepAliveClientMixin {
   List<String> favoritePlacesIDs = <String>[];
 
   final Location location = Location();
@@ -182,4 +183,7 @@ class _RecomendacionesViewState extends State<RecomendacionesView> {
       return placesSnapshot;
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

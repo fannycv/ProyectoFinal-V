@@ -6,7 +6,8 @@ import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/view/recurso/recurso_card_view.dart';
 
 class FavoritosView extends StatefulWidget {
-  const FavoritosView({Key? key}) : super(key: key);
+  const FavoritosView({Key? key, this.withAppBar = true}) : super(key: key);
+  final bool withAppBar;
 
   @override
   State<FavoritosView> createState() => _FavoritosViewState();
@@ -17,58 +18,65 @@ class _FavoritosViewState extends State<FavoritosView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Mis Favoritos'),
-        backgroundColor: Colors.indigo,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: getFavoritePlacesStream(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return const Text('Something went wrong');
-          }
+    return widget.withAppBar
+        ? Scaffold(
+            appBar: AppBar(
+              title: const Text('Mis Favoritos'),
+              backgroundColor: Colors.indigo,
+              iconTheme: const IconThemeData(color: Colors.white),
+              titleTextStyle:
+                  const TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            body: body(),
+          )
+        : body();
+  }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return SingleChildScrollView(
-              child: SkeletonLoader(
-                items: 3,
-                baseColor: Theme.of(context).colorScheme.background,
-                highlightColor: Theme.of(context).colorScheme.surfaceVariant,
-                builder: Card(
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 300,
-                      ),
-                    ],
-                  ),
+  Widget body() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: getFavoritePlacesStream(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SingleChildScrollView(
+            child: SkeletonLoader(
+              items: 3,
+              baseColor: Theme.of(context).colorScheme.background,
+              highlightColor: Theme.of(context).colorScheme.surfaceVariant,
+              builder: Card(
+                child: Column(
+                  children: [
+                    Container(
+                      height: 300,
+                    ),
+                  ],
                 ),
               ),
-            );
-          }
-
-          return ListView.separated(
-            itemCount: snapshot.data!.docs.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10.0),
-            itemBuilder: (context, index) {
-              DocumentSnapshot document = snapshot.data!.docs[index];
-
-              Map<String, dynamic> data =
-                  document.data()! as Map<String, dynamic>;
-
-              Place place = Place.fromJson(id: document.id, json: data);
-
-              return RecursoCard(
-                place: place,
-                isFavorite: true,
-              );
-            },
+            ),
           );
-        },
-      ),
+        }
+
+        return ListView.separated(
+          itemCount: snapshot.data!.docs.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 10.0),
+          itemBuilder: (context, index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+
+            Map<String, dynamic> data =
+                document.data()! as Map<String, dynamic>;
+
+            Place place = Place.fromJson(id: document.id, json: data);
+
+            return RecursoCard(
+              place: place,
+              isFavorite: true,
+            );
+          },
+        );
+      },
     );
   }
 

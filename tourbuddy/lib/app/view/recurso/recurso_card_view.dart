@@ -1,22 +1,22 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
+import 'package:tourbuddy/app/utils.dart';
 import 'package:tourbuddy/app/view/recurso/recursos_detalle.dart';
-import 'package:location/location.dart';
 
 class RecursoCard extends StatefulWidget {
   final Place place;
   final bool isFavorite;
 
+  final LatLng? currentLatLng;
   const RecursoCard({
     super.key,
     required this.place,
     this.isFavorite = false,
+    this.currentLatLng,
   });
 
   @override
@@ -24,25 +24,6 @@ class RecursoCard extends StatefulWidget {
 }
 
 class _RecursoCardState extends State<RecursoCard> {
-  late final Location location = Location();
-
-  late LatLng currentLatLng = const LatLng(0, 0);
-  void loadCurrentLocation() async {
-    LocationData data = await location.getLocation();
-
-    // await location.hasPermission();
-
-    // print(hasPermission.name);
-    setState(() {
-      currentLatLng = LatLng(
-        data.latitude ?? 0,
-        data.longitude ?? 0,
-      );
-
-      // persmmisonName = hasPermission.name;
-    });
-  }
-
   _handleRecursoCardTap(BuildContext context) {
     Navigator.push(
       context,
@@ -75,46 +56,6 @@ class _RecursoCardState extends State<RecursoCard> {
       'place_id': widget.place.id,
       'created_at': DateTime.now(),
     });
-  }
-
-// Calcula la distancia entre dos puntos utilizando la fórmula de Haversine
-  double calculateDistance({
-    required LatLng firstPoint,
-    required LatLng secondPoint,
-  }) {
-    const int earthRadius = 6371; // Radio de la Tierra en kilómetros
-
-    // Convertir grados a radianes
-    double startLatRadians = degreesToRadians(firstPoint.latitude);
-    double endLatRadians = degreesToRadians(secondPoint.latitude);
-
-    double latDiffRadians =
-        degreesToRadians(secondPoint.latitude - firstPoint.latitude);
-    double lonDiffRadians =
-        degreesToRadians(secondPoint.longitude - firstPoint.longitude);
-
-    // Fórmula de Haversine
-    double a = sin(latDiffRadians / 2) * sin(latDiffRadians / 2) +
-        cos(startLatRadians) *
-            cos(endLatRadians) *
-            sin(lonDiffRadians / 2) *
-            sin(lonDiffRadians / 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    // Distancia en kilómetros
-    double distance = earthRadius * c;
-    return distance;
-  }
-
-  double degreesToRadians(double degrees) {
-    return degrees * pi / 180;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    loadCurrentLocation();
   }
 
   @override
@@ -157,7 +98,7 @@ class _RecursoCardState extends State<RecursoCard> {
                         size: 16,
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * .65,
+                        width: MediaQuery.of(context).size.width * .5,
                         child: Text(
                           '${widget.place.department}-${widget.place.province}-${widget.place.district}',
                           style: const TextStyle(fontSize: 14.0),
@@ -165,11 +106,14 @@ class _RecursoCardState extends State<RecursoCard> {
                         ),
                       ),
                       const Spacer(),
-                      Text(
-                        '${calculateDistance(firstPoint: currentLatLng, secondPoint: LatLng(widget.place.location?.latitude ?? 0, widget.place.location?.longitude ?? 0)).toStringAsFixed(0)}km',
-                        style:
-                            const TextStyle(fontSize: 14.0, color: Colors.grey),
-                      ),
+                      if (widget.currentLatLng != null)
+                        Text(
+                          '${Util.calculateDistance(firstPoint: widget.currentLatLng ?? const LatLng(0, 0), secondPoint: LatLng(widget.place.location?.latitude ?? 0, widget.place.location?.longitude ?? 0)).toStringAsFixed(0)}km',
+                          style: const TextStyle(
+                              fontSize: 10.0, color: Colors.grey),
+                          softWrap: false,
+                          textAlign: TextAlign.right,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 10.0),

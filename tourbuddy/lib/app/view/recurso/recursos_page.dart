@@ -103,6 +103,7 @@ class _RecursosViewState extends State<RecursosView>
 
     Stream<QuerySnapshot> favoritesStream = FirebaseFirestore.instance
         .collection('favorites')
+        .limit(10)
         .where('user_uid', isEqualTo: user?.uid ?? "no_auth")
         .snapshots();
 

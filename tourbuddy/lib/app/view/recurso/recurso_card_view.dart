@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/view/recurso/recursos_detalle.dart';
+import 'package:location/location.dart';
 
-class RecursoCard extends StatelessWidget {
+class RecursoCard extends StatefulWidget {
   final Place place;
   final bool isFavorite;
 
@@ -15,11 +19,35 @@ class RecursoCard extends StatelessWidget {
     this.isFavorite = false,
   });
 
+  @override
+  State<RecursoCard> createState() => _RecursoCardState();
+}
+
+class _RecursoCardState extends State<RecursoCard> {
+  late final Location location = Location();
+
+  late LatLng currentLatLng = const LatLng(0, 0);
+  void loadCurrentLocation() async {
+    LocationData data = await location.getLocation();
+
+    // await location.hasPermission();
+
+    // print(hasPermission.name);
+    setState(() {
+      currentLatLng = LatLng(
+        data.latitude ?? 0,
+        data.longitude ?? 0,
+      );
+
+      // persmmisonName = hasPermission.name;
+    });
+  }
+
   _handleRecursoCardTap(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RecursoDetailPage(place: place),
+        builder: (context) => RecursoDetailPage(place: widget.place),
       ),
     );
   }
@@ -31,7 +59,7 @@ class RecursoCard extends StatelessWidget {
     await FirebaseFirestore.instance
         .collection('favorites')
         .where('user_uid', isEqualTo: user?.uid ?? "no_auth")
-        .where('place_id', isEqualTo: place.id)
+        .where('place_id', isEqualTo: widget.place.id)
         .get()
         .then((snapshot) {
       snapshot.docs.first.reference.delete();
@@ -44,9 +72,49 @@ class RecursoCard extends StatelessWidget {
 
     await FirebaseFirestore.instance.collection('favorites').add({
       'user_uid': user?.uid ?? "no_auth",
-      'place_id': place.id,
+      'place_id': widget.place.id,
       'created_at': DateTime.now(),
     });
+  }
+
+// Calcula la distancia entre dos puntos utilizando la fórmula de Haversine
+  double calculateDistance({
+    required LatLng firstPoint,
+    required LatLng secondPoint,
+  }) {
+    const int earthRadius = 6371; // Radio de la Tierra en kilómetros
+
+    // Convertir grados a radianes
+    double startLatRadians = degreesToRadians(firstPoint.latitude);
+    double endLatRadians = degreesToRadians(secondPoint.latitude);
+
+    double latDiffRadians =
+        degreesToRadians(secondPoint.latitude - firstPoint.latitude);
+    double lonDiffRadians =
+        degreesToRadians(secondPoint.longitude - firstPoint.longitude);
+
+    // Fórmula de Haversine
+    double a = sin(latDiffRadians / 2) * sin(latDiffRadians / 2) +
+        cos(startLatRadians) *
+            cos(endLatRadians) *
+            sin(lonDiffRadians / 2) *
+            sin(lonDiffRadians / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    // Distancia en kilómetros
+    double distance = earthRadius * c;
+    return distance;
+  }
+
+  double degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadCurrentLocation();
   }
 
   @override
@@ -65,7 +133,7 @@ class RecursoCard extends StatelessWidget {
                 topRight: Radius.circular(10.0),
               ),
               child: Image.network(
-                place.gallery?.first ?? '',
+                widget.place.gallery?.first ?? '',
                 height: 200.0,
                 fit: BoxFit.cover,
               ),
@@ -76,7 +144,7 @@ class RecursoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    place.name ?? '',
+                    widget.place.name ?? '',
                     style: const TextStyle(
                         fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
@@ -91,15 +159,16 @@ class RecursoCard extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * .65,
                         child: Text(
-                          '${place.department}-${place.province}-${place.district}',
+                          '${widget.place.department}-${widget.place.province}-${widget.place.district}',
                           style: const TextStyle(fontSize: 14.0),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const Spacer(),
-                      const Text(
-                        '5km',
-                        style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                      Text(
+                        '${calculateDistance(firstPoint: currentLatLng, secondPoint: LatLng(widget.place.location?.latitude ?? 0, widget.place.location?.longitude ?? 0)).toStringAsFixed(0)}km',
+                        style:
+                            const TextStyle(fontSize: 14.0, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -127,13 +196,15 @@ class RecursoCard extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () {
-                          if (isFavorite) return removeFromFavorites();
+                          if (widget.isFavorite) return removeFromFavorites();
 
                           addToFavorites();
                         },
                         icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? Colors.red : Colors.grey,
+                          widget.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: widget.isFavorite ? Colors.red : Colors.grey,
                         ),
                       ),
                       const Text(

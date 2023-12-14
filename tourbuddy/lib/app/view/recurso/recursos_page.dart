@@ -22,7 +22,7 @@ class _RecursosViewState extends State<RecursosView>
 
     return StreamBuilder<QuerySnapshot>(
       stream: getPlacesStream(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Text('Something went wrong');
         }
@@ -67,8 +67,34 @@ class _RecursosViewState extends State<RecursosView>
     );
   }
 
-  final Stream<QuerySnapshot> placesStream =
-      FirebaseFirestore.instance.collection('places').snapshots();
+  Stream<List<Map<String, dynamic>>> getPlacesWithCommentsStream() {
+    return FirebaseFirestore.instance
+        .collection('places')
+        .limit(3)
+        .snapshots()
+        .asyncMap((placesSnapshot) async {
+      List<Map<String, dynamic>> placesWithComments = [];
+
+      for (var placeDoc in placesSnapshot.docs) {
+        String placeId = placeDoc.id;
+
+        QuerySnapshot<Map<String, dynamic>> commentsSnapshot =
+            await FirebaseFirestore.instance
+                .collection('places/$placeId/comments')
+                .get();
+
+        int commentCount = commentsSnapshot.size;
+
+        Map<String, dynamic> placeData = placeDoc.data();
+        placeData['commentCount'] = commentCount;
+        placeData['id'] = placeDoc.id;
+
+        placesWithComments.add(placeData);
+      }
+
+      return placesWithComments;
+    });
+  }
 
   Stream<QuerySnapshot> getPlacesStream() {
     // Obtener el Stream de los IDs de los lugares favoritos

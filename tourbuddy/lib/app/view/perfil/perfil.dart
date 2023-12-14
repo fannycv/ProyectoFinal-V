@@ -10,6 +10,9 @@ class PerfilView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.indigo,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
         actions: [
           IconButton(
             icon: Icon(Icons.more_vert),

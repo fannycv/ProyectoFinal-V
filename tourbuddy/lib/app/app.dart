@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourbuddy/app/providers/activities_provider.dart';
-import 'package:tourbuddy/app/view/welcome.dart';
+import 'package:tourbuddy/app/view/home/welcome_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
               ),
           useMaterial3: true,
         ),
-        home: SplashPage(),
+        home: WelcomePage(),
       ),
     );
   }

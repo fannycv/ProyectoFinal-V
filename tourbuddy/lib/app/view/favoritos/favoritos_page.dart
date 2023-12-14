@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/view/recurso/recurso_card_view.dart';
 
@@ -17,50 +17,58 @@ class _FavoritosViewState extends State<FavoritosView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return StreamBuilder<QuerySnapshot>(
-      stream: getFavoritePlacesStream(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Something went wrong');
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Mis Favoritos'),
+        backgroundColor: Colors.indigo,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: getFavoritePlacesStream(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Something went wrong');
+          }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return SingleChildScrollView(
-            child: SkeletonLoader(
-              items: 3,
-              baseColor: Theme.of(context).colorScheme.background,
-              highlightColor: Theme.of(context).colorScheme.surfaceVariant,
-              builder: Card(
-                child: Column(
-                  children: [
-                    Container(
-                      height: 300,
-                    ),
-                  ],
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SingleChildScrollView(
+              child: SkeletonLoader(
+                items: 3,
+                baseColor: Theme.of(context).colorScheme.background,
+                highlightColor: Theme.of(context).colorScheme.surfaceVariant,
+                builder: Card(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 300,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        }
-
-        return ListView.separated(
-          itemCount: snapshot.data!.docs.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 10.0),
-          itemBuilder: (context, index) {
-            DocumentSnapshot document = snapshot.data!.docs[index];
-
-            Map<String, dynamic> data =
-                document.data()! as Map<String, dynamic>;
-
-            Place place = Place.fromJson(id: document.id, json: data);
-
-            return RecursoCard(
-              place: place,
-              isFavorite: true,
             );
-          },
-        );
-      },
+          }
+
+          return ListView.separated(
+            itemCount: snapshot.data!.docs.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 10.0),
+            itemBuilder: (context, index) {
+              DocumentSnapshot document = snapshot.data!.docs[index];
+
+              Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+
+              Place place = Place.fromJson(id: document.id, json: data);
+
+              return RecursoCard(
+                place: place,
+                isFavorite: true,
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

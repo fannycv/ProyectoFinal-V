@@ -170,13 +170,6 @@ class _HomePageState extends State<HomePage>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.route),
-              title: const Text('Rutas'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.favorite),
               title: const Text('Favoritos'),
               onTap: () {
@@ -186,7 +179,7 @@ class _HomePageState extends State<HomePage>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.people),
+              leading: const Icon(Icons.person),
               title: const Text('Perfil'),
               onTap: () {
                 Navigator.pop(context);

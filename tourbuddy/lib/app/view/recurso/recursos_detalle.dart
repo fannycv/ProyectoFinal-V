@@ -34,6 +34,8 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
 
   bool loading = true;
 
+  int commentCount = 0;
+
   void loadResourceLocation() async {
     setState(() {
       _kGooglePlex = CameraPosition(
@@ -57,6 +59,20 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
 
     currentImage = widget.place.gallery?.first;
     loadResourceLocation();
+    fetchCommentCount();
+  }
+
+  Future<void> fetchCommentCount() async {
+    QuerySnapshot<Map<String, dynamic>> commentsSnapshot =
+        await FirebaseFirestore.instance
+            .collection('places')
+            .doc(widget.place.id)
+            .collection('comments')
+            .get();
+
+    setState(() {
+      commentCount = commentsSnapshot.size;
+    });
   }
 
   @override
@@ -121,9 +137,9 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Row(
+                        Row(
                           children: <Widget>[
-                            RatingStars(
+                            const RatingStars(
                               value: 3,
                               starCount: 5,
                               starSize: 15,
@@ -133,11 +149,13 @@ class _RecursoDetailPageState extends State<RecursoDetailPage> {
                               maxValueVisibility: false,
                               animationDuration: Duration(milliseconds: 1000),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             Text(
-                              '10 comentarios',
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.grey),
+                              '$commentCount comentarios',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),

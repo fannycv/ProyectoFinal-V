@@ -149,6 +149,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
       );
 
+      // Guardar el nombre de usuario en Firebase Authentication
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.updateDisplayName(_nameController.text);
+      }
+
       showMessage(message: 'Cuenta creada con éxito');
 
       Navigator.push(

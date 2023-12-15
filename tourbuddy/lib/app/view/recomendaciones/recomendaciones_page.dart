@@ -103,6 +103,8 @@ class _RecomendacionesViewState extends State<RecomendacionesView>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return StreamBuilder<List<DocumentSnapshot<dynamic>>>(
       stream: stream,
       builder: (context, snapshot) {

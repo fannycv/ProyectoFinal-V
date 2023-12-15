@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PerfilView extends StatelessWidget {
   const PerfilView({
@@ -8,6 +9,8 @@ class PerfilView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.indigo,
@@ -44,12 +47,12 @@ class PerfilView extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      'K Julie Clayton',
+                      user?.displayName ?? 'Usuario Desconocido',
                       style: TextStyle(
                           fontSize: 28, fontWeight: FontWeight.normal),
                     ),
                     Text(
-                      'EE.UU - Texas',
+                      'Perú - Arequipa',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                     const SizedBox(height: 15),
@@ -118,7 +121,7 @@ class PerfilView extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Center(
                 child: Text(
-                  'MIS RUTAS',
+                  'MIS FAVORITOS',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -166,21 +169,21 @@ class PerfilView extends StatelessWidget {
               color: Colors.transparent,
               elevation: 0,
               child: ListTile(
-                title: Text('Actividad 1'),
+                title: Text('Visita el Museo de Historia Natural'),
               ),
             ),
             Card(
               color: Colors.transparent,
               elevation: 0,
               child: ListTile(
-                title: Text('Actividad 2'),
+                title: Text('Clase de cocina tradicional'),
               ),
             ),
             Card(
               color: Colors.transparent,
               elevation: 0,
               child: ListTile(
-                title: Text('Actividad 3'),
+                title: Text('Excursión de senderismo'),
               ),
             ),
           ],
@@ -196,7 +199,7 @@ class ImageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Image.network(
-        'https://via.placeholder.com/150',
+        'https://cdn.pixabay.com/photo/2023/04/21/17/47/plum-blossoms-7942343_1280.jpg',
         fit: BoxFit.cover,
       ),
     );

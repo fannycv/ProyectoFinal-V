@@ -24,8 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text('Login'),
         backgroundColor: Colors.indigo,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -53,12 +53,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: 'Correo Electrónico',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.indigo,
                     ),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.email,
                     color: Colors.indigo,
                   ),
@@ -71,12 +71,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.indigo,
                     ),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.lock,
                     color: Colors.indigo,
                   ),
@@ -138,6 +138,13 @@ class _LoginScreenState extends State<LoginScreen> {
         email: emailController.text,
         password: passwordController.text,
       );
+
+      // Puedes obtener el nombre de usuario después de iniciar sesión
+      User? user = auth.currentUser;
+      if (user != null) {
+        String userName = user.displayName ?? 'Usuario';
+        print('Nombre de usuario: $userName');
+      }
 
       Navigator.pushReplacement(
         context,

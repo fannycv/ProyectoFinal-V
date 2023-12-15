@@ -19,8 +19,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         title: const Text('Registro'),
         backgroundColor: Colors.indigo,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
         leading: GestureDetector(
           onTap: () {
             Navigator.pop(context);
@@ -56,12 +56,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: InputDecoration(
                   labelText: 'Nombre Completo',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.indigo,
                     ),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.person,
                     color: Colors.indigo,
                   ),
@@ -73,12 +73,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: InputDecoration(
                   labelText: 'Correo Electrónico',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.indigo,
                     ),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.email,
                     color: Colors.indigo,
                   ),
@@ -91,12 +91,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.indigo,
                     ),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.lock,
                     color: Colors.indigo,
                   ),
@@ -159,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     } on FirebaseAuthException catch (e) {
       showMessage(message: e.message ?? 'Error al crear la cuenta');

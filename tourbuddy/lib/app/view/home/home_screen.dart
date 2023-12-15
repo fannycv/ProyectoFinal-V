@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:tourbuddy/app/view/autentificacion/register_screen.dart';
 import 'package:tourbuddy/app/view/home/home_page.dart';
 import 'package:tourbuddy/app/view/autentificacion/login_screen.dart';
 
@@ -72,7 +73,7 @@ class CarouselPage extends StatelessWidget {
                       context,
                       //para ir a la pantalla principal
                       MaterialPageRoute(
-                        builder: (context) => const HomePage(),
+                        builder: (context) => RegisterScreen(),
                       ),
                     );
                   },

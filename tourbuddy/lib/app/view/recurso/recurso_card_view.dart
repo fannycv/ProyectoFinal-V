@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:tourbuddy/app/models/comment_model.dart';
 import 'package:tourbuddy/app/models/place_model.dart';
 import 'package:tourbuddy/app/utils.dart';
 import 'package:tourbuddy/app/view/recurso/recursos_detalle.dart';
@@ -56,6 +57,12 @@ class _RecursoCardState extends State<RecursoCard> {
       'place_id': widget.place.id,
       'created_at': DateTime.now(),
     });
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getCommentsStream(placeId) {
+    return FirebaseFirestore.instance
+        .collection('places/$placeId/comments')
+        .snapshots();
   }
 
   @override
@@ -130,14 +137,7 @@ class _RecursoCardState extends State<RecursoCard> {
                         animationDuration: Duration(milliseconds: 1000),
                       ),
                       const Spacer(),
-                      const Icon(
-                        Icons.comment,
-                        color: Colors.grey,
-                        size: 16,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 5),
-                      ),
+
                       IconButton(
                         onPressed: () {
                           if (widget.isFavorite) return removeFromFavorites();
@@ -151,10 +151,19 @@ class _RecursoCardState extends State<RecursoCard> {
                           color: widget.isFavorite ? Colors.red : Colors.grey,
                         ),
                       ),
-                      const Text(
-                        'comments',
-                        style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                      const Icon(
+                        Icons.comment,
+                        color: Colors.grey,
+                        size: 16,
                       ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 5),
+                      ),
+                      commentSize(widget.place.id ?? ''),
+                      // const Text(
+                      //   'comments',
+                      //   style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                      // ),
                     ],
                   ),
                 ],
@@ -163,6 +172,35 @@ class _RecursoCardState extends State<RecursoCard> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget commentSize(String placeId) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: getCommentsStream(placeId),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text('');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('...');
+        }
+
+        var size = snapshot.data!.docs.length;
+        String sms = '';
+        if (size == 0) {
+          sms = 'Sin Comentarios';
+        } else if (size == 1) {
+          sms = '1 Comentario';
+        } else {
+          sms = '$size Comentarios';
+        }
+        return Text(
+          sms,
+          style: const TextStyle(fontSize: 14.0, color: Colors.grey),
+        );
+      },
     );
   }
 }
